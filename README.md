@@ -69,7 +69,7 @@ Your chatbot will include this feature as an option to allow users to ask topic-
 
 Use the [notebook](https://colab.research.google.com/drive/1fGCia6TEjerDlysPqUFsBb8x3LwiG0Ef?usp=sharing) provided in the Generative Question Answering lesson to create a Chroma database and download it to your computer. Make sure that you choose a text that is related to your industry or that it's a text that may bring useful information.
 
->**Note:** Cohere has introduced a token limit for embeddings, so to prevent errors, it's recommended to use shorter texts, like a Wikipedia article. If you encounter any issues while creating your database using the notebook above, you are welcome to use [this](https://github.com/Thinkful-Ed/ai-in-web-dev-resources/raw/refs/heads/main/db.zip) pre-built database for your project.
+>**Note:** Cohere has introduced a token limit for embeddings, so to prevent errors, it's recommended to use shorter texts, like a Wikipedia article. If you encounter any issues while creating your database using the notebook above, you are welcome to use [this](https://github.com/Thinkful-Ed/ai-in-web-dev-resources/raw/refs/heads/main/db_updated.zip) pre-built database for your project.
 
 >**Note:** Please be aware that Github imposes a [file size limit of 25MB](https://docs.github.com/en/repositories/working-with-files/managing-large-files/about-large-files-on-github#file-size-limits). Thus, if you add numerous documents to your database, it may exceed this limit. In case you have a file larger than 25MB, you have two options: 
 >
@@ -82,7 +82,7 @@ Use the [notebook](https://colab.research.google.com/drive/1fGCia6TEjerDlysPqUFs
 
 To use the database in your app, you will need to add it in your project. Add the `db` folder to your project like shown in the screenshot below.
 
-![Files](screenshots/files.png)
+![Files](screenshots/files_updated.png)
 
 #### 3. Load the database in your flask app
 
@@ -247,3 +247,4 @@ General code organization:
 - Follow the order of the user stories.
 - If you are stuck, take a careful look at the provided resources. If you are still stuck, ask a friend, AI assistant, or a mentor for help.
 - Read the user stories and tests carefully.
+- For our testing, we used the Quantum Computing dataset and encourage students to use different documents to create their knowledge base.
