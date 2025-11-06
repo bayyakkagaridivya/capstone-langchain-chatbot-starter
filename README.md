@@ -89,9 +89,15 @@ To use the database in your app, you will need to add it in your project. Add th
 Import RetrievalQA, Chroma, and CohereEmbeddings into your project.
 
 ```python
+from flask import Flask, render_template, request, jsonify
+from langchain_cohere import ChatCohere, CohereEmbeddings
+from langchain_community.vectorstores import Chroma
+from langchain.prompts import PromptTemplate
 from langchain.chains import RetrievalQA
-from langchain.embeddings import CohereEmbeddings
-from langchain.vectorstores import Chroma
+from langchain_core.runnables import RunnableSequence
+import os
+from dotenv import load_dotenv
+load_dotenv()
 ```
 
 Create a function to load the database. To avoid any errors, make sure that you added the database to your project and that you have set your `COHERE_API_KEY` in your `.env` file. 
@@ -101,8 +107,9 @@ def load_db():
     try:
         embeddings = CohereEmbeddings(cohere_api_key=os.environ["COHERE_API_KEY"])
         vectordb = Chroma(persist_directory='db', embedding_function=embeddings)
+        llm = ChatCohere(cohere_api_key=os.environ["COHERE_API_KEY"])
         qa = RetrievalQA.from_chain_type(
-            llm=Cohere(),
+            llm=llm,
             chain_type="refine",
             retriever=vectordb.as_retriever(),
             return_source_documents=True
@@ -120,8 +127,11 @@ The function should call the RetrievalQA object that you created in the previous
 
 ```python
 def answer_from_knowledgebase(message):
-    res = qa({"query": message})
-    return res['result']
+    try:
+        res = qa.invoke({"query": message})
+        return res['result']
+    except Exception as e:
+        return e
 ```
 
 Make sure to test that your function works before proceeding to the next step.
@@ -145,8 +155,7 @@ You can convert the sources into a string in the following manner:
 res = qa({"query": message})
 sources = ""
 for count, source in enumerate(res['source_documents'],1):
-    sources += "Source " + str(count) + "\n"
-    sources += source.page_content + "\n"
+    sources += f"Source {count}\n{source.page_content}\n"
 ```
 
 #### Aceptance Criteria
@@ -205,11 +214,11 @@ Deploy the app on Render so that it becomes part of your portfolio. Use the foll
 
 #### 2. Set the `PYTHON_VERSION` and `COHERE_API_KEY` environment variables
 
-Render uses an older version of Python as default but this can be easily changed by setting an environment variable. Inside the Environment tab, create a new environment variable called `PYTHON_VERSION` and set its value to `3.10.12`. This will ensure that Render uses Python version 3.10.12 (the same version that you used in your notebook) for your app. Refer to the screenshot below for a visual guide.
+Render uses an older version of Python as default but this can be easily changed by setting an environment variable. Inside the Environment tab, create a new environment variable called `PYTHON_VERSION` and set its value to `3.13.7`. This will ensure that Render uses Python version 3.13.7 (the same version that you used in your notebook) for your app. Refer to the screenshot below for a visual guide.
 
 ![deploy](screenshots/new_deploy.png)
 
-> **Note:** Render automatically spins down a [free web service](https://render.com/docs/free#:~:text=Render%20spins%20down%20a%20Free,is%20back%20up%20and%20running.) if it remains inactive for 15 minutes without any incoming traffic. When a request is received, Render promptly spins up the service. However, the spinning up process may take a few seconds or, in some cases, up to a couple of minutes. During this time, there might be a noticeable delay for incoming requests, resulting in brief moments of hanging or slower page loads in a browser.
+> **Note:** Render automatically spins down a [free web service](https://render.com/docs/free#:~:text=Render%20spins%20down%20a%20Free,is%20back%20up%20and%20running.) if it remains inactive for 15 minutes without any incoming traffic. When a request is received, Render promptly spins up the service. However, the spinning up process may take a few seconds or, in some cases, up to a couple of minutes. During this time, there might be a noticeable delay for incoming requests, resulting in brief moments of hanging or slower page loads in a browser. <br> Since the search_knowledgebase() and answer_from_knowledgebase() functions may take a significant amount of time to execute, requests can time out when tested on Render. To avoid this issue, students are encouraged to test these functionalities locally on their own machines for smoother performance
 
 #### Aceptance Criteria
 
