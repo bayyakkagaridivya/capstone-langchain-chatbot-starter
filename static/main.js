@@ -1,82 +1,115 @@
-function sendMessage() {
-    let messageInput = document.getElementById('message-input');
-    let message = messageInput.value;
-    displayMessage('user', message)
-    
-    // Get the selected function from the dropdown menu
-    let functionSelect = document.getElementById('function-select');
-    let selectedFunction = functionSelect.value;
-    
-    // Send an AJAX request to the Flask API endpoint based on the selected function
-    let xhr = new XMLHttpRequest();
-    let url;
+// --- New Utility Functions ---
 
-    switch (selectedFunction) {
-        case 'search':
-            url = '/search';
-            break;
-        case 'kbanswer':
-            url = '/kbanswer';
-            break;
-        case 'answer':
-            url = '/answer';
-            break;
-        default:
-            url = '/answer';
-    }
-    
-    xhr.open('POST', url);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.onload = function() {
-        if (xhr.status === 200) {
-            let response = JSON.parse(xhr.responseText);
-            displayMessage('assistant', response.message);
+function showLoading() {
+    document.getElementById('loading-indicator').style.display = 'block';
+    document.getElementById('send-button').disabled = true;
+    document.getElementById('clear-button').disabled = true;
+}
+
+function hideLoading() {
+    document.getElementById('loading-indicator').style.display = 'none';
+    document.getElementById('send-button').disabled = false;
+    document.getElementById('clear-button').disabled = false;
+}
+
+function autoScroll() {
+    const chatHistory = document.getElementById('chat-history');
+    chatHistory.scrollTop = chatHistory.scrollHeight;
+}
+
+function clearChat() {
+    document.getElementById('chat-history').innerHTML = '';
+    console.log("Chat history cleared.");
+}
+
+
+// --- Core Chat Logic ---
+
+function appendMessage(sender, message, sources = '', mode = '') {
+    const chatHistory = document.getElementById('chat-history');
+    const messageDiv = document.createElement('div');
+    messageDiv.classList.add('message', `${sender}-message`);
+
+    let content = message;
+
+    // Add source and mode information for the bot's response
+    if (sender === 'bot') {
+        let sourceInfo = '';
+        if (mode) {
+            sourceInfo += `<strong>Mode:</strong> ${mode}`;
         }
-    };
-    xhr.send(JSON.stringify({message: message}));
-    
-    // Clear the input field
-    messageInput.value = '';
-}
-
-function displayMessage(sender, message) {
-    let chatContainer = document.getElementById('chat-container');
-    let messageDiv = document.createElement('div');
-
-    if (sender === 'assistant') {
-        messageDiv.classList.add('assistant-message');
+        if (sources) {
+            sourceInfo += (mode ? ' | ' : '') + `<strong>Sources:</strong> ${sources}`;
+        }
         
-        // Create a span for the Chatbot text
-        let chatbotSpan = document.createElement('span');
-        chatbotSpan.innerHTML = "<b>Chatbot:</b> ";
-        messageDiv.appendChild(chatbotSpan);
-        
-        // Append the message to the Chatbot span
-        messageDiv.innerHTML += message;
-    } else {
-        messageDiv.classList.add('user-message');
-
-        let userSpan = document.createElement('span');
-        userSpan.innerHTML = "<b>User:</b> ";
-        messageDiv.appendChild(userSpan);
-        
-        // Append the message to the span
-        messageDiv.innerHTML += message;
+        // Append source info below the main answer
+        if (sourceInfo) {
+            content += `<div class="source-info">${sourceInfo}</div>`;
+        }
     }
 
-    // Create a timestamp element
-    let timestamp = document.createElement('span');
-    timestamp.classList.add('timestamp');
-    let currentTime = new Date().toLocaleTimeString();
-    timestamp.innerText = " ["+ currentTime+"]";
-    messageDiv.appendChild(timestamp);
-
-    chatContainer.appendChild(messageDiv);
-
-    // Scroll to the bottom of the chat container
-    chatContainer.scrollTop = chatContainer.scrollHeight;
+    messageDiv.innerHTML = content;
+    chatHistory.appendChild(messageDiv);
 }
 
-// Handle button click event
-let sendButton = document.getElementById('send-btn');
-sendButton.addEventListener('click', sendMessage);
+
+async function sendMessage() {
+    const userInput = document.getElementById('user-input');
+    const userMessage = userInput.value.trim();
+
+    if (userMessage === '') return;
+
+    // 1. Append user message and clear input
+    appendMessage('user', userMessage);
+    userInput.value = '';
+    
+    showLoading();
+    autoScroll(); // Scroll after user message is added
+
+    try {
+        // Use the hybrid route (assuming it's mapped to /answer or /hybridanswer)
+        const response = await fetch('/answer', { 
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: userMessage }),
+        });
+
+        const data = await response.json();
+        
+        if (data.error) {
+            // 4. Implement robust error handling
+            appendMessage('bot', `An error occurred: ${data.error}`, '', 'Error');
+        } else {
+            // 2. Append bot message with sources and mode
+            const sources = data.sources || '';
+            const mode = data.mode || 'General Chat'; // Default to General Chat if mode is missing
+            appendMessage('bot', data.answer, sources, mode);
+        }
+    } catch (error) {
+        // 4. Implement robust error handling for network/fetch errors
+        console.error('Fetch Error:', error);
+        appendMessage('bot', `Network error: Could not connect to the server.`, '', 'Error');
+    } finally {
+        hideLoading();
+        autoScroll(); // Scroll again after bot message is added
+    }
+}
+/**
+ * Auto-scrolls the chat window to the bottom to show the latest message.
+ */
+function autoScroll() {
+    const chatHistory = document.getElementById('chat-history');
+    // Set the scroll position to the total height of the scrollable content
+    chatHistory.scrollTop = chatHistory.scrollHeight;
+}
+
+/**
+ * Clears all messages from the chat history container.
+ */
+function clearChat() {
+    const chatHistory = document.getElementById('chat-history');
+    chatHistory.innerHTML = ''; // Clears all inner HTML content
+    console.log("Chat history cleared.");
+    // Optionally, send a cleanup message to the server to reset memory (for US-01)
+    // For now, we'll just clear the visual history.
+}

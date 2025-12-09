@@ -1,27 +1,142 @@
-.chat-container {
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    height: 500px;
-    padding: 10px;
-    overflow-y: scroll;
+/* Global Reset and Font */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f7f6; /* Light gray background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
 }
 
+/* Main Container */
+.container {
+    width: 90%;
+    max-width: 800px; /* Max width for readability */
+    background-color: #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    overflow: hidden; /* Contains chat history scroll */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header Styling */
+header {
+    background-color: #3498db; /* Primary Blue */
+    color: white;
+    padding: 20px;
+    text-align: center;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+}
+
+/* Chat Area */
+#chat-history {
+    height: 60vh; /* Visible height for the chat window */
+    padding: 20px;
+    overflow-y: auto; /* Enable scrolling */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Individual Message Bubbles */
+.message {
+    padding: 10px 15px;
+    border-radius: 18px;
+    margin: 5px 0;
+    max-width: 75%;
+    line-height: 1.5;
+}
+
+/* User Message */
 .user-message {
-    background-color: #eaf2f8;
-    padding: 5px;
-    margin-bottom: 10px;
+    background-color: #e8f5e9; /* Light green/User color */
+    align-self: flex-end; /* Align to the right */
+    color: #333;
 }
 
-.assistant-message {
-    background-color: #f1f0f0;
-    padding: 5px;
-    margin-bottom: 10px;
+/* Bot Message */
+.bot-message {
+    background-color: #f1f1f1; /* Light gray/Bot color */
+    align-self: flex-start; /* Align to the left */
+    border-bottom-left-radius: 0;
+    color: #333;
 }
 
-.text-input {
-    width: 100%;
-    margin: 10px 0;
+/* Input Area Styling */
+.input-area {
+    display: flex;
+    padding: 15px;
+    border-top: 1px solid #ddd;
+    background-color: #f9f9f9;
+}
+
+#user-input {
+    flex-grow: 1;
     padding: 10px;
-    border-radius: 5px;
     border: 1px solid #ccc;
+    border-radius: 6px;
+    margin-right: 10px;
+    font-size: 16px;
+}
+
+/* Button Styling (Send/Clear) */
+.input-area button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: background-color 0.2s ease;
+}
+
+#send-button {
+    background-color: #3498db; /* Primary Blue */
+    color: white;
+    margin-right: 5px;
+}
+
+#send-button:hover {
+    background-color: #2980b9;
+}
+
+#clear-button {
+    background-color: #e74c3c; /* Red for Clear/Danger */
+    color: white;
+}
+
+#clear-button:hover {
+    background-color: #c0392b;
+}
+
+/* Sources and Mode Display */
+.source-info {
+    font-size: 0.85em;
+    color: #7f8c8d;
+    margin-top: 5px;
+}
+
+.source-info strong {
+    font-weight: 600;
+    color: #34495e;
+}
+
+/* (The .spinner and @keyframes spin CSS from the previous step should be kept here) */
+
+/* Spinner Animation */
+.spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border-left-color: #3498db; /* Blue color for the spinner */
+    animation: spin 1s ease infinite;
+    margin: 10px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
