@@ -55,12 +55,15 @@ function appendMessage(sender, message, sources = '', mode = '') {
 
 async function sendMessage() {
     const userInput = document.getElementById('user-input');
-    const userMessage = userInput.value.trim();
+    const message = userInput.value.trim();
 
-    if (userMessage === '') return;
+    if (message === '') return;
+    // Get the selected mode
+    const modeSelect = document.getElementById("mode-select");
+    const mode = modeSelect ? modeSelect.value : "chat";
 
     // 1. Append user message and clear input
-    appendMessage('user', userMessage);
+    appendMessage('user', message);
     userInput.value = '';
     
     showLoading();
@@ -68,10 +71,13 @@ async function sendMessage() {
 
     try {
         // Use the hybrid route (assuming it's mapped to /answer or /hybridanswer)
-        const response = await fetch('/answer', { 
+        const response = await fetch('/chat', { 
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: userMessage }),
+            body: JSON.stringify({ 
+                message: message,
+                mode: mode 
+            }),
         });
 
         const data = await response.json();

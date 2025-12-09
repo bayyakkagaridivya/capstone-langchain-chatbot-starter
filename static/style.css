@@ -1,3 +1,18 @@
+.mode-select {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-right: 10px;
+    background-color: white;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.mode-select:focus {
+    outline: none;
+    border-color: #007bff;
+}
+
 /* Global Reset and Font */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -65,7 +80,7 @@ header {
 }
 
 /* Input Area Styling */
-.input-area {
+.input-container {
     display: flex;
     padding: 15px;
     border-top: 1px solid #ddd;

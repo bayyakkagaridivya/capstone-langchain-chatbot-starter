@@ -150,9 +150,32 @@ def answer_from_knowledgebase(message):
         return f"Error during knowledge base query: {str(e)}", "Error"
 
 def search_knowledgebase(message):
-    # TODO: Write your code here
-    sources = ""
-    return sources
+    global kb_chain
+    if not kb_chain:
+        return "Knowledge base chain is not initialized.", ""
+    
+    try:
+        # Search for relevant documents without invoking the LLM
+        # Assuming kb_chain is a RetrievalQA chain, we access its retriever
+        docs = kb_chain.retriever.get_relevant_documents(message)
+        
+        # specific logic to format search results
+        if not docs:
+            return "No relevant documents found.", ""
+            
+        answer = "Found the following relevant documents:\n"
+        sources = []
+        for i, doc in enumerate(docs, 1):
+            # Show a snippet of the content
+            snippet = doc.page_content[:200].replace('\n', ' ')
+            answer += f"\n{i}. {snippet}...\n"
+            sources.append(doc.metadata.get('source', 'Unknown'))
+            
+        unique_sources_str = ", ".join(sorted(list(set(sources))))
+        return answer, unique_sources_str
+        
+    except Exception as e:
+        return f"Error searching knowledge base: {str(e)}", ""
 
 def answer_as_chatbot(message):
     # Pass the user message to the chain
@@ -216,6 +239,22 @@ def answer():
     except Exception as e:
         # Proper error handling
         return jsonify({"error": str(e)}), 500
+
+@app.route('/chat', methods=['POST'])
+def chat():
+    data = request.get_json()
+    message = data.get('message', '')
+    mode = data.get('mode', 'chat') # Default to 'chat'
+
+    if mode == "search":
+        answer, sources = search_knowledgebase(message)
+    elif mode == "rag":
+        answer, sources = answer_from_knowledgebase(message)
+    else: # Default to 'chat' (Answer as Chatbot)
+        answer = answer_as_chatbot(message)
+        sources = ""
+
+    return jsonify({"answer": answer, "source": sources})
 
 @app.route("/")
 def index():

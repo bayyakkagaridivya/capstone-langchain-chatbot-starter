@@ -19,8 +19,14 @@
             <div class="spinner"></div>
             <p>Aura is processing your query...</p>
         </div>
+        
 
-        <div class="input-area">
+        <div class="input-container">
+            <select id="mode-select" class="mode-select">
+                <option value="chat">Answer as Chatbot</option>
+                <option value="search">Search Knowledge Base</option>
+                <option value="rag">Answer from Knowledge Base</option>
+            </select>
             <input type="text" id="user-input" placeholder="Ask a question about the project or general topics..." autofocus>
             <button id="send-button" onclick="sendMessage()">Send</button>
             <button id="clear-button" onclick="clearChat()">Clear</button>
